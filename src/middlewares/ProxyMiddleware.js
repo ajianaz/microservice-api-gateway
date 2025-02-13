@@ -25,23 +25,26 @@ export default async function proxyMiddleware(fastify) {
             }
 
             // Check Access Control (API Manager)
-            const accessGranted = await checkAccess(request.user, service);
-            if (!accessGranted) {
-                console.log(`[PROXY] Access Denied for service: ${service}`);
-                return reply.code(403).send({
-                    success: false,
-                    message: "Forbidden",
-                });
-            }
+            // const accessGranted = await checkAccess(request.user, service);
+            // if (!accessGranted) {
+            //     console.log(`[PROXY] Access Denied for service: ${service}`);
+            //     return reply.code(403).send({
+            //         success: false,
+            //         message: "Forbidden",
+            //     });
+            // }
 
-            console.log(`[PROXY] Forwarding request to: ${serviceDetails.url}${request.url.replace(`/api/${service}`, "")}`);
+            // 🔥 Perbaiki path tujuan
+            const targetUrl = serviceDetails.url + request.url.replace(`/api/${service}`, "");
+
+            console.log(`[PROXY] Forwarding request to: ${targetUrl}`);
 
             // Forward request to the target service
-            return reply.from(serviceDetails.url, {
-                rewriteRequestHeaders: (headers) => {
-                    headers["X-Forwarded-For"] = request.ip;
-                    return headers;
-                },
+            return reply.from(targetUrl, {
+                // rewriteRequestHeaders: (headers) => {
+                //     headers["X-Forwarded-For"] = request.ip;
+                //     return headers;
+                // },
             });
         } catch (error) {
             console.error(`[PROXY] Error:`, error);

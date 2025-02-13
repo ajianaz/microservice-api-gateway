@@ -20,6 +20,13 @@
             "is_maintenance": false,
             "status": 0,
             "message": "Service C is currently down"
+        },
+        {
+            "name": "reqres",
+            "url": "https://reqres.in",
+            "is_maintenance": false,
+            "status": 1,
+            "message": ""
         }
     ]
 }
