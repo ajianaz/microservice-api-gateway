@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env.local
+    command: ["npm", "run", "dev"]
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
