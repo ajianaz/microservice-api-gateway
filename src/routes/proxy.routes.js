@@ -2,5 +2,8 @@
 import ProxyController from "../controllers/ProxyController.js";
 
 export default async function proxyRoutes(fastify) {
-    fastify.get("/:service/*", ProxyController.proxyRequest);
+    fastify.get("/api/:service", async (req, reply) => {
+        const controller = new ProxyController();
+        return controller.proxyRequest(req, reply);
+    });
 }

@@ -1,0 +1,25 @@
+{
+    "services": [
+        {
+            "name": "service-a",
+            "url": "http://service-a:4000",
+            "is_maintenance": false,
+            "status": 1,
+            "message": "Service A is operational"
+        },
+        {
+            "name": "service-b",
+            "url": "http://service-b:5000",
+            "is_maintenance": true,
+            "status": 1,
+            "message": "Service B is under maintenance"
+        },
+        {
+            "name": "service-c",
+            "url": "http://service-c:6000",
+            "is_maintenance": false,
+            "status": 0,
+            "message": "Service C is currently down"
+        }
+    ]
+}

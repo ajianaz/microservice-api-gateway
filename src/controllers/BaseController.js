@@ -1,10 +1,15 @@
 // src/controllers/BaseController.js
-export default class BaseController {
-    resSuccess(reply, data, message = "Success") {
-        return reply.send({ success: true, message, data });
+class BaseController {
+    resSuccess(reply, data, statusCode = 200) {
+        return reply.code(statusCode).send({ success: true, data });
     }
 
     resError(reply, error, statusCode = 500) {
-        return reply.status(statusCode).send({ success: false, message: error.message || "An error occurred" });
+        return reply.code(statusCode).send({
+            success: false,
+            message: error.message || "Internal Server Error",
+        });
     }
 }
+
+export default BaseController;

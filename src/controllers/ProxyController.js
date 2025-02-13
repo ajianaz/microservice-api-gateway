@@ -1,24 +1,31 @@
-// src/controllers/ProxyController.js
 import BaseController from "./BaseController.js";
-import { getServiceUrl } from "../services/ServiceManager.js";
+import { getServiceDetails } from "../services/ServiceManager.js";
 import { checkAccess } from "../services/ApiManager.js";
 
 class ProxyController extends BaseController {
+    constructor() {
+        super(); // <-- Penting! Agar mewarisi method dari BaseController
+    }
+
     async proxyRequest(req, reply) {
         try {
-            // Ambil URL dari service manager
-            const serviceUrl = await getServiceUrl(req.params.service);
+            const { service } = req.params;
+            const serviceDetails = await getServiceDetails(service);
 
-            // Cek akses dari api-manager
-            const accessGranted = await checkAccess(req.user, req.params.service);
+            // Handle service errors (down or maintenance)
+            if (serviceDetails.error) {
+                return this.resError(reply, new Error(serviceDetails.error), serviceDetails.status);
+            }
+
+            // Check access control
+            const accessGranted = await checkAccess(req.user, service);
             if (!accessGranted) return this.resError(reply, new Error("Forbidden"), 403);
 
-            // Redirect request ke service tujuan
-            return this.resSuccess(reply, { proxyTo: serviceUrl });
+            return this.resSuccess(reply, { proxyTo: serviceDetails.url });
         } catch (error) {
             return this.resError(reply, error);
         }
     }
 }
 
-export default new ProxyController();
+export default ProxyController;
