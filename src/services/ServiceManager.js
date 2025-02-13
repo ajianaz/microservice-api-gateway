@@ -16,7 +16,7 @@ export async function getServiceDetails(serviceName) {
 
         // Check if service is down
         if (service.status === 0) {
-            return { error: "Service is currently down", message: service.message, status: 503 };
+            return { error: "Service unavailable", message: service.message, status: 503 };
         }
 
         // Check if service is under maintenance
