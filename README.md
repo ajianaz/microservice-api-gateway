@@ -18,19 +18,18 @@ This is a **lightweight and high-performance API Gateway** built using **Fastify
 ```
 📦 api-gateway 
 ├── 📂 src
-│ ├── 📂 controllers
-│ │ ├── BaseController.js # Super Class for Response
-│ │ ├── ProxyController.js # Handles proxy (ServiceManager & ApiManager)
+│ ├── 📂 config
+│ │ ├── services.json # Json of Services
 │ ├── 📂 middlewares
-│ │ ├── AuthMiddleware.js # Handles authentication (Keycloak) 
 │ │ ├── AccessMiddleware.js # Handles API access control 
-│ ├── 📂 routes 
-│ │ ├── proxy.routes.js # Defines API Gateway proxy routes 
+│ │ ├── AuthMiddleware.js # Handles authentication (Keycloak) 
+│ │ ├── ProxyMiddleware.js # Handles Forward to Target Service 
 │ ├── 📂 services 
 │ │ ├── ApiManager.js # API Manager for Access Controll
 │ │ ├── ServiceManager.js # Service Manager for Service Discovery
 │ ├── 📂 utils 
 │ │ ├── RateLimiter.js # Implements rate limiting 
+│ │ ├── ResponseHelper.js # Helper Response
 ├── .env.local # Environment variables for development 
 ├── .env.prod # Environment variables for production 
 ├── Dockerfile # Dockerfile for production and development by NODE_ENV
