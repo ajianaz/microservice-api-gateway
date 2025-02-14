@@ -111,9 +111,3 @@ make restart-prod     # Restart the production container
 ```
 
 ---
-
-### 🔥 **Updates:**
-✅ **Added `controllers` and `services` to the project structure**  
-✅ **More modular and structured**  
-✅ **Improved clarity and maintainability**  
-
