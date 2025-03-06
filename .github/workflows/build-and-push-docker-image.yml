@@ -1,0 +1,41 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - build-image # Workflow ini hanya akan berjalan pada branch 'build-image'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set Version
+        run: |
+          # Ambil VERSION dari secret, jika tidak ada gunakan default 1.0.0
+          VERSION="${{ secrets.VERSION }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="1.0.0"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION is $VERSION"
+
+      - name: Build Docker Image with Multiple Tags
+        run: |
+          # Pastikan menggunakan target production (sesuaikan jika perlu)
+          docker build --target production \
+            -t ghcr.io/${{ github.actor }}/microservice-api-gateway:$VERSION .
+
+      - name: Push Docker Image with Version Tag
+        run: docker push ghcr.io/${{ github.actor }}/microservice-api-gateway:$VERSION
+
+      - name: Tag Image as Latest and Push
+        run: |
+          docker image tag ghcr.io/${{ github.actor }}/microservice-api-gateway:$VERSION ghcr.io/${{ github.actor }}/microservice-api-gateway:latest
+          docker push ghcr.io/${{ github.actor }}/microservice-api-gateway:latest
