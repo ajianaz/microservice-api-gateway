@@ -6,6 +6,7 @@ import rateLimiter from './src/plugin/RateLimiter.js'
 import corsPlugin from './src/plugin/cors.js'
 import Multipart from './src/plugin/Multipart.js'
 import helmetPlugin from './src/plugin/Helmet.js'
+import formbody from '@fastify/formbody'
 import dotenv from 'dotenv'
 
 // Tentukan file env berdasarkan NODE_ENV
@@ -17,8 +18,12 @@ dotenv.config({ path: envFile })
 const PORT = process.env.PORT || 3000
 const HOST = process.env.HOST || '127.0.0.1'
 const LOGGER = process.env.LOGGER === 'true' // Konversi ke boolean
+const MAX_SIZE_IN_MB = Number(process.env.MAX_SIZE_IN_MB) || 10
 
-const fastify = Fastify({ logger: LOGGER }) // Aktifkan logger
+const fastify = Fastify({
+  logger: LOGGER,
+  bodyLimit: MAX_SIZE_IN_MB * 1024 * 1024
+}) // Aktifkan logger
 
 // Middleware Logging
 fastify.addHook('onRequest', async (request, reply) => {
@@ -29,14 +34,25 @@ fastify.addHook('onRequest', async (request, reply) => {
 await fastify.register(helmetPlugin)
 await fastify.register(corsPlugin)
 await fastify.register(rateLimiter)
-await fastify.register(Multipart)
+await fastify.register(formbody)
+await fastify.register(Multipart, {
+  addToBody: true
+})
+
+// Daftarkan parser untuk multipart (agar tidak menghasilkan error 415)
+fastify.addContentTypeParser('multipart/form-data', async (req, payload) => {
+  // Anda bisa menyimpan payload raw ke req.rawBody jika perlu
+  req.rawBody = payload
+  // req.file = payload
+  return payload
+})
 
 // Middleware
 fastify.addHook('onRequest', authMiddleware)
 fastify.addHook('onRequest', accessMiddleware)
 
 // Register Proxy Middleware
-fastify.register(proxyMiddleware)
+await fastify.register(proxyMiddleware)
 
 // Start server
 fastify.listen({ port: PORT, host: HOST }, (err, address) => {
