@@ -9,7 +9,10 @@
         "dev": "nodemon server.js"
     },
     "dependencies": {
+        "@fastify/cors": "^11.0.0",
+        "@fastify/helmet": "^13.0.1",
         "@fastify/http-proxy": "^8.4.0",
+        "@fastify/multipart": "^9.0.3",
         "@fastify/rate-limit": "^10.2.2",
         "@fastify/reply-from": "^12.0.2",
         "axios": "^1.7.9",
