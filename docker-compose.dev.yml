@@ -10,9 +10,9 @@ services:
     ports:
       - "${PORT:-3003}:${PORT:-3003}"
     volumes:
-      - .:/app
+      - .:/home/node/app
       # - /app/node_modules
-    
+
     command: ["npm", "run", "dev"]
     networks:
       - my-network
