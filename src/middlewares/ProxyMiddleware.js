@@ -1,7 +1,7 @@
 // src/middlewares/ProxyMiddleware.js
 import fastifyReplyFrom from '@fastify/reply-from'
 import { getServiceDetails } from '../services/ServiceManager.js'
-// import { checkAccess } from '../services/ApiManager.js';
+// import { checkAccess } from '../services/ApiManager.js'
 
 export default async function proxyMiddleware(fastify) {
   fastify.register(fastifyReplyFrom)
@@ -34,6 +34,16 @@ export default async function proxyMiddleware(fastify) {
             message: serviceDetails.message || serviceDetails.error
           })
         }
+
+        // (Optional) Check Access Control
+        // const accessGranted = await checkAccess(request.user, service);
+        // if (!accessGranted) {
+        //   console.log(`[PROXY] Access Denied for service: ${service}`);
+        //   return reply.code(403).send({
+        //     success: false,
+        //     message: "Forbidden",
+        //   });
+        // }
 
         const targetUrl =
           serviceDetails.url + request.url.replace(`/api/${service}`, '')
