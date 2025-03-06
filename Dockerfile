@@ -1,25 +1,40 @@
-# Gunakan Node.js versi terbaru sebagai base image
-FROM node:20-alpine
+# Base image
+FROM node:20-alpine as base
 
-# Set workdir
-WORKDIR /app
+# Set Workdir
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
 
-# Copy package.json and package-lock.json first
-COPY package*.json ./
-
-# ARG NODE_ENV mode (default: development)
-ARG NODE_ENV=development
-ENV NODE_ENV=${NODE_ENV}
-
-# Install dependencies based mode
-RUN if [ "$NODE_ENV" = "development" ]; then npm install; else npm install --only=production; fi
-
-# Copy all
+# Copy all (exclude by .dockerignore) to /home/node/app
 COPY . .
 
-# Expose port
-ARG EXPOSE_PORT=3000
-ENV EXPOSE_PORT=${EXPOSE_PORT:-3000}
+# Install all dependencies
+RUN npm install -g npm@latest && npm install
 
-# CMD will replace in docker-compose
-CMD ["node", "server.js", "--port", "$EXPOSE_PORT"]
+# * 
+# * ============= Dev Image Setup =============
+# * 
+FROM base as development
+RUN npm install -g nodemon
+
+# Set Non Root User
+USER node
+
+# Set permissions to node:node
+COPY --chown=node:node . .
+
+# * 
+# * ============= Prod Image Setup =============
+# * 
+FROM base as production
+RUN npm install -g pm2
+
+
+# Set Non Root User
+USER node
+
+# Set permissions to node:node
+COPY --chown=node:node . .
+
+# Start single instances using pm2
+CMD ["pm2-runtime", "bin/www"]
