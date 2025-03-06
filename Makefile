@@ -1,6 +1,6 @@
 # Variables
-DOCKER_DEV_COMPOSE = docker-compose -f docker-compose.dev.yml
-DOCKER_PROD_COMPOSE = docker-compose -f docker-compose.prod.yml
+DOCKER_DEV_COMPOSE = docker compose -f docker-compose.dev.yml
+DOCKER_PROD_COMPOSE = docker compose -f docker-compose.prod.yml
 
 # Default target
 .DEFAULT_GOAL := help
