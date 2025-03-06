@@ -5,8 +5,11 @@ import accessMiddleware from "./src/middlewares/AccessMiddleware.js";
 import rateLimiter from "./src/utils/RateLimiter.js";
 import dotenv from "dotenv";
 
-// Load environment variables
-dotenv.config();
+// Tentukan file env berdasarkan NODE_ENV
+const envFile = process.env.NODE_ENV === "production" ? ".env" : ".env.local";
+
+// Muat environment variables dari file yang sudah ditentukan
+dotenv.config({ path: envFile });
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "127.0.0.1";

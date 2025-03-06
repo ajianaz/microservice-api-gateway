@@ -2,7 +2,11 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
-dotenv.config();
+// Tentukan file env berdasarkan NODE_ENV
+const envFile = process.env.NODE_ENV === "production" ? ".env" : ".env.local";
+
+// Muat environment variables dari file yang sudah ditentukan
+dotenv.config({ path: envFile });
 
 const KEYCLOAK_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----\n${process.env.KEYCLOAK_PUBLIC_KEY}\n-----END PUBLIC KEY-----`;
 
