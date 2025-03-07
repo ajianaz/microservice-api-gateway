@@ -18,19 +18,6 @@ export default async function proxyMiddleware(fastify) {
       //   config: { rawBody: true }
     },
     async (request, reply) => {
-      // Hanya contoh: proses multipart untuk membangun ulang payload jika diperlukan.
-      if (request.headers['content-type']?.includes('multipart/form-data')) {
-        console.log(request.body)
-        // const parts = request.parts()
-        // for await (const part of parts) {
-        //   console.log(
-        //     `Field/File: ${part.fieldname}`,
-        //     part.filename ? `File: ${part.filename}` : ''
-        //   )
-        //   // Lakukan proses sesuai kebutuhan...
-        // }
-      }
-
       console.log(
         `[PROXY] Incoming request for: /api/${request.params.service}`
       )
@@ -51,17 +38,16 @@ export default async function proxyMiddleware(fastify) {
         const targetUrl =
           serviceDetails.url + request.url.replace(`/api/${service}`, '')
         console.log(`[PROXY] Forwarding request to: ${targetUrl}`)
-        // console.log(`${request.body}`)
-        // const parts = request.parts()
-        // for await (const part of parts) {
-        //   if (part.type === 'file') {
-        //     console.log(`Received file: ${part.filename}`)
-        //     // Anda bisa menggunakan part.toBuffer() atau memproses stream
-        //   } else {
-        //     console.log(`Received field: ${part.fieldname} = ${part.value}`)
-        //   }
-        // }
 
+        if (request.headers['content-type'] && request.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+          // const serializedBody = JSON.stringify(request.body);
+          return reply.from(targetUrl, {
+            body: request.body,
+            headers: {
+              'content-type': 'application/json'
+            }
+          });
+        }
         return reply.from(targetUrl)
       } catch (error) {
         console.error(`[PROXY] Error:`, error)

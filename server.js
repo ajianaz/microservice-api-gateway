@@ -40,7 +40,7 @@ await fastify.register(Multipart, {
 })
 
 // Daftarkan parser untuk multipart (agar tidak menghasilkan error 415)
-fastify.addContentTypeParser('multipart/form-data', async (req, payload) => {
+fastify.addContentTypeParser('*', async (req, payload) => {
   // Anda bisa menyimpan payload raw ke req.rawBody jika perlu
   req.rawBody = payload
   // req.file = payload
