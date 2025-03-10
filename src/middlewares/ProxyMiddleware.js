@@ -18,6 +18,8 @@ export default async function proxyMiddleware(fastify) {
       //   config: { rawBody: true }
     },
     async (request, reply) => {
+      const ip = request.headers['x-forwarded-for'] || request.ip
+      console.log(`Access From : ${ip}`)
       console.log(
         `[PROXY] Incoming request for: /api/${request.params.service}`
       )
@@ -49,14 +51,19 @@ export default async function proxyMiddleware(fastify) {
           serviceDetails.url + request.url.replace(`/api/${service}`, '')
         console.log(`[PROXY] Forwarding request to: ${targetUrl}`)
 
-        if (request.headers['content-type'] && request.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+        if (
+          request.headers['content-type'] &&
+          request.headers['content-type'].includes(
+            'application/x-www-form-urlencoded'
+          )
+        ) {
           // const serializedBody = JSON.stringify(request.body);
           return reply.from(targetUrl, {
             body: request.body,
             headers: {
               'content-type': 'application/json'
             }
-          });
+          })
         }
         return reply.from(targetUrl)
       } catch (error) {

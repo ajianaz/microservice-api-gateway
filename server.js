@@ -8,6 +8,7 @@ import Multipart from './src/plugin/Multipart.js'
 import helmetPlugin from './src/plugin/Helmet.js'
 import formbody from '@fastify/formbody'
 import dotenv from 'dotenv'
+import UnderPressure from '@fastify/under-pressure'
 
 // Tentukan file env berdasarkan NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.local'
@@ -37,6 +38,10 @@ await fastify.register(rateLimiter)
 await fastify.register(formbody)
 await fastify.register(Multipart, {
   addToBody: true
+})
+
+await fastify.register(UnderPressure, {
+  trustProxy: true
 })
 
 // Daftarkan parser untuk multipart (agar tidak menghasilkan error 415)
