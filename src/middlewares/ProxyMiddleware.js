@@ -19,7 +19,9 @@ export default async function proxyMiddleware(fastify) {
     },
     async (request, reply) => {
       const ip = request.headers['x-forwarded-for'] || request.ip
-      console.log(`Access From : ${ip}`)
+      console.log(
+        `Access From : ${request.headers['x-forwarded-for']} - ${request.ip}`
+      )
       console.log(
         `[PROXY] Incoming request for: /api/${request.params.service}`
       )
