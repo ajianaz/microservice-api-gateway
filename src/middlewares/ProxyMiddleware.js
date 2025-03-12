@@ -18,10 +18,6 @@ export default async function proxyMiddleware(fastify) {
       //   config: { rawBody: true }
     },
     async (request, reply) => {
-      const ip = request.headers['cf-connecting-ip'] || request.ip
-      console.log(
-        `Access From : IP ${ip} - CF ${request.headers['x-forwarded-for']}`
-      )
       console.log(
         `[PROXY] Incoming request for: /api/${request.params.service}`
       )

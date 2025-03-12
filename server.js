@@ -1,65 +1,66 @@
 import Fastify from 'fastify'
+import dotenv from 'dotenv'
+
+// 🔹 Middleware
+import blacklistMiddleware from './src/middlewares/blacklist.js'
 import proxyMiddleware from './src/middlewares/ProxyMiddleware.js'
 import authMiddleware from './src/middlewares/AuthMiddleware.js'
 import accessMiddleware from './src/middlewares/AccessMiddleware.js'
+
+// 🔹 Plugins
 import rateLimiter from './src/plugin/RateLimiter.js'
 import corsPlugin from './src/plugin/cors.js'
 import Multipart from './src/plugin/Multipart.js'
 import helmetPlugin from './src/plugin/Helmet.js'
 import formbody from '@fastify/formbody'
-import dotenv from 'dotenv'
 import UnderPressure from '@fastify/under-pressure'
 
-// Tentukan file env berdasarkan NODE_ENV
+// 🔹 Load the `.env` file based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.local'
+dotenv.config({ path: envFile }) // Load environment variables
 
-// Muat environment variables dari file yang sudah ditentukan
-dotenv.config({ path: envFile })
-
+// 🔹 Fastify Configuration
 const PORT = process.env.PORT || 3000
 const HOST = process.env.HOST || '127.0.0.1'
-const LOGGER = process.env.LOGGER === 'true' // Konversi ke boolean
+const LOGGER = process.env.LOGGER === 'true' // Convert to boolean
 const MAX_SIZE_IN_MB = Number(process.env.MAX_SIZE_IN_MB) || 10
 
 const fastify = Fastify({
   logger: LOGGER,
   bodyLimit: MAX_SIZE_IN_MB * 1024 * 1024
-}) // Aktifkan logger
-
-// Middleware Logging
-fastify.addHook('onRequest', async (request, reply) => {
-  console.log(`[REQUEST] ${request.method} ${request.url}`)
 })
 
-// Daftarkan plugin Helmet
-await fastify.register(helmetPlugin)
-await fastify.register(corsPlugin)
-await fastify.register(rateLimiter)
-await fastify.register(formbody)
-await fastify.register(Multipart, {
-  addToBody: true
-})
+// =========================
+//  🔹 REGISTER PLUGINS
+// =========================
+await Promise.all([
+  fastify.register(helmetPlugin), // Security: Prevent common attacks
+  fastify.register(corsPlugin), // Allow cross-origin requests
+  fastify.register(rateLimiter), // Prevent request spamming
+  fastify.register(UnderPressure, { trustProxy: true }), // Monitor server health
+  fastify.register(formbody), // Parse x-www-form-urlencoded requests
+  fastify.register(Multipart, { addToBody: true }), // Parse multipart/form-data
+  fastify.register(proxyMiddleware) // Middleware for proxying requests to microservices
+])
 
-await fastify.register(UnderPressure, {
-  trustProxy: true
-})
+// =========================
+//  🔹 REGISTER MIDDLEWARE (onRequest Hook)
+// =========================
+fastify.addHook('onRequest', blacklistMiddleware) // 🚨 Block requests from blacklisted IPs first
+fastify.addHook('onRequest', authMiddleware) // 🔑 Validate user authentication
+fastify.addHook('onRequest', accessMiddleware) // 🔐 Ensure user has access permissions
 
-// Daftarkan parser untuk multipart (agar tidak menghasilkan error 415)
+// =========================
+//  🔹 REGISTER CONTENT TYPE PARSER (Optional)
+// =========================
 fastify.addContentTypeParser('*', async (req, payload) => {
-  // Anda bisa menyimpan payload raw ke req.rawBody jika perlu
   req.rawBody = payload
-  // req.file = payload
   return payload
 })
 
-// Middleware
-fastify.addHook('onRequest', authMiddleware)
-fastify.addHook('onRequest', accessMiddleware)
-
-// Register Proxy Middleware
-await fastify.register(proxyMiddleware)
-
-// Start server
+// =========================
+//  🔹 START SERVER
+// =========================
 fastify.listen({ port: PORT, host: HOST }, (err, address) => {
   if (err) {
     console.error('Error starting server:', err)
