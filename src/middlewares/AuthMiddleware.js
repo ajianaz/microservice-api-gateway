@@ -1,40 +1,45 @@
-import axios from "axios";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import axios from 'axios'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
 
 // Tentukan file env berdasarkan NODE_ENV
-const envFile = process.env.NODE_ENV === "production" ? ".env" : ".env.local";
+const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.local'
 
 // Muat environment variables dari file yang sudah ditentukan
-dotenv.config({ path: envFile });
+dotenv.config({ path: envFile })
 
-const KEYCLOAK_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----\n${process.env.KEYCLOAK_PUBLIC_KEY}\n-----END PUBLIC KEY-----`;
+const KEYCLOAK_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----\n${process.env.KEYCLOAK_PUBLIC_KEY}\n-----END PUBLIC KEY-----`
 
 /**
  * Middleware for authenticating requests using Keycloak JWT tokens.
  */
 export default async function authMiddleware(request, reply) {
-    const authHeader = request.headers.authorization;
+  const authHeader = request.headers.authorization
 
-    if (!authHeader) {
-        request.user = null; // Allow unauthenticated access
-        return;
+  if (!authHeader) {
+    request.user = null // Allow unauthenticated access
+    return
+  }
+
+  try {
+    const token = authHeader.split(' ')[1]
+
+    // Validate token locally with JWT
+    const decoded = jwt.verify(token, KEYCLOAK_PUBLIC_KEY, {
+      algorithms: ['RS256']
+    })
+    console.log(JSON.stringify(decoded))
+
+    request.user = {
+      id: decoded.sub,
+      username: decoded.preferred_username,
+      email: decoded.email,
+      roles: decoded.realm_access?.roles || []
     }
-
-    try {
-        const token = authHeader.split(" ")[1];
-
-        // Validate token locally with JWT
-        const decoded = jwt.verify(token, KEYCLOAK_PUBLIC_KEY, { algorithms: ["RS256"] });
-
-        request.user = {
-            id: decoded.sub,
-            username: decoded.preferred_username,
-            email: decoded.email,
-            roles: decoded.realm_access?.roles || [],
-        };
-    } catch (error) {
-        console.error("Invalid Token:", error.message);
-        return reply.code(401).send({ success: false, message: "Invalid or expired token" });
-    }
+  } catch (error) {
+    console.error('Invalid Token:', error.message)
+    return reply
+      .code(401)
+      .send({ success: false, message: 'Invalid or expired token' })
+  }
 }
