@@ -6,6 +6,8 @@ export default async function corsPlugin(fastify) {
     origin: '*', // Mengizinkan semua origin atau tentukan origin tertentu
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
+      'Accept',
+      'Origin',
       'X-Requested-With',
       'Content-Type',
       'Authorization',
