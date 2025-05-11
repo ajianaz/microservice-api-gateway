@@ -3,11 +3,18 @@ import fastifyCors from '@fastify/cors'
 
 export default async function corsPlugin(fastify) {
   const corsOptions = {
-    origin: '*', // Izinkan akses dari semua domain
-    methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders:
-      'Content-Type,Authorization,Bearer,unixtime,gateway_key,x-api-key,api_access_token'
+    origin: '*', // Mengizinkan semua origin atau tentukan origin tertentu
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Bearer',
+      'unixtime',
+      'gateway_key',
+      'x-api-key',
+      'api_access_token'
+    ],
+    credentials: true // Mengizinkan kredensial
   }
-  // Daftarkan plugin CORS
   await fastify.register(fastifyCors, corsOptions)
 }
