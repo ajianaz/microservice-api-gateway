@@ -6,6 +6,7 @@ export default async function corsPlugin(fastify) {
     origin: '*', // Mengizinkan semua origin atau tentukan origin tertentu
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
+      'X-Requested-With',
       'Content-Type',
       'Authorization',
       'Bearer',
@@ -13,8 +14,8 @@ export default async function corsPlugin(fastify) {
       'gateway_key',
       'x-api-key',
       'api_access_token'
-    ],
-    credentials: true // Mengizinkan kredensial
+    ]
+    // credentials: true // Mengizinkan kredensial
   }
   await fastify.register(fastifyCors, corsOptions)
 }
