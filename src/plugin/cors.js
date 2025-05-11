@@ -2,8 +2,8 @@
 import fastifyCors from '@fastify/cors'
 
 export default async function corsPlugin(fastify) {
-  const corsOptions = {
-    origin: '*', // Mengizinkan semua origin atau tentukan origin tertentu
+  await fastify.register(fastifyCors, {
+    origin: '*', // Mengizinkan semua origin
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
       'Accept',
@@ -16,8 +16,11 @@ export default async function corsPlugin(fastify) {
       'gateway_key',
       'x-api-key',
       'api_access_token'
-    ]
-    // credentials: true // Mengizinkan kredensial
-  }
-  await fastify.register(fastifyCors, corsOptions)
+    ],
+    credentials: false, // Tidak mengizinkan kredensial
+    strictPreflight: true, // Memastikan permintaan preflight memiliki header yang benar
+    optionsSuccessStatus: 204, // Status sukses untuk permintaan OPTIONS
+    preflightContinue: false, // Tidak meneruskan permintaan preflight ke handler berikutnya
+    maxAge: 86400 // Menyimpan hasil preflight selama 24 jam
+  })
 }
